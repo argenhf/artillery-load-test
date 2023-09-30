@@ -1,0 +1,61 @@
+config:
+    target: https://reqres.in
+    phases:
+        - duration: 60
+          arrivalRate: 1
+          rampTo: 5
+          name: warm up phase
+        - duration: 60
+          arrivalRate: 5
+          rampTo: 10
+          name: ramp up load
+        - duration: 30
+          arrivalRate: 10
+          rampTo: 30
+          name: spike phase
+    plugins:
+        expect: {}
+scenarios:
+    - name: "get resources"
+      flow:
+          - loop:
+                - get:
+                      url: "/api/{resource}?page=1&per_page=20"
+                      expect:
+                          - statusCode: 200
+            count: 5
+
+    - name: "login"
+      flow:
+          - loop:
+                - post:
+                      url: "/api/login"
+                      headers:
+                          content-type: "application/json"
+                      body: '{"email": "eve.holt@reqres.in", "password": "cityslicka"}'
+                      expect:
+                          - statusCode: 200
+            count: 5
+
+    - name: "register"
+      flow:
+          - loop:
+                - post:
+                      url: "/api/register"
+                      headers:
+                          content-type: "application/json"
+                      body: '{"email": "emma.wong@reqres.in", "password": "qwerty"}'
+                      expect:
+                          - statusCode: 200
+            count: 5
+
+    - name: "update resource"
+      flow:
+          - loop:
+                - put:
+                      url: "/api/{resource}/{id}"
+                      headers:
+                          content-type: "application/json"
+                      expect:
+                          - statusCode: 200
+            count: 5
